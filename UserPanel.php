@@ -7,14 +7,15 @@
  */
 
 namespace Panel;
+use Nette\Application\AppForm;
+use Nette\Application\Control;
 use Nette\Debug;
+use Nette\Environment;
 use Nette\IDebugPanel;
-use Nette\Object;
-use Nette\Templates\FileTemplate;
 use Nette\Templates\LatteFilter;
 
 
-class UserPanel extends \Nette\Application\Control implements IDebugPanel
+class UserPanel extends Control implements IDebugPanel
 {
 
 	/** @var \Nette\Web\User */
@@ -34,8 +35,8 @@ class UserPanel extends \Nette\Application\Control implements IDebugPanel
 	 */
 	public function __construct($username = NULL, $password = NULL)
 	{
-		parent::__construct(\Nette\Environment::getApplication()->presenter, $this->reflection->shortName);
-		$this->user = \Nette\Environment::getUser();
+		parent::__construct(Environment::getApplication()->presenter, $this->reflection->shortName);
+		$this->user = Environment::getUser();
 		$this->setDefaultCredentials($username, $password);
 	}
 
@@ -124,13 +125,13 @@ class UserPanel extends \Nette\Application\Control implements IDebugPanel
 	 */
 	public function createComponentLogin($name)
 	{
-		$form = new \Nette\Application\AppForm($this, $name);
+		$form = new AppForm($this, $name);
 
 		$form->addText('username', 'Username:')
-			->addRule(\Nette\Application\AppForm::FILLED, 'Please provide a username.');
+			->addRule(AppForm::FILLED, 'Please provide a username.');
 
 		$form->addText('password', 'Password:')
-			->addRule(\Nette\Application\AppForm::FILLED, 'Please provide a password.');
+			->addRule(AppForm::FILLED, 'Please provide a password.');
 
 		$form->addSubmit('send', 'Log in');
 
@@ -143,11 +144,11 @@ class UserPanel extends \Nette\Application\Control implements IDebugPanel
 	/**
 	 * @param \Nette\Application\AppForm $form
 	 */
-	public function onLoginSubmitted(\Nette\Application\AppForm $form)
+	public function onLoginSubmitted(AppForm $form)
 	{
 		try {
 			$values = $form->getValues();
-			\Nette\Environment::getUser()->login($values['username'], $values['password']);
+			Environment::getUser()->login($values['username'], $values['password']);
 			$this->redirect('this');
 		} catch (AuthenticationException $e) {
 			$form->addError($e->getMessage());
@@ -158,7 +159,7 @@ class UserPanel extends \Nette\Application\Control implements IDebugPanel
 	
 	public function handleLogout()
 	{
-		\Nette\Environment::getUser()->logout();
+		Environment::getUser()->logout();
 		$this->redirect('this');
 	}
 }
