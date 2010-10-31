@@ -20,12 +20,23 @@ class UserPanel extends \Nette\Application\Control implements IDebugPanel
 	/** @var \Nette\Web\User */
 	private $user;
 
+	/** @var string */
+	private $username;
 
-	
-	public function __construct()
+	/** @var string */
+	private $password;
+
+
+
+	/**
+	 * @param string $username default value
+	 * @param string $password default value
+	 */
+	public function __construct($username = NULL, $password = NULL)
 	{
 		parent::__construct(\Nette\Environment::getApplication()->presenter, $this->reflection->shortName);
 		$this->user = \Nette\Environment::getUser();
+		$this->setDefaultCredentials($username, $password);
 	}
 
 
@@ -55,6 +66,10 @@ class UserPanel extends \Nette\Application\Control implements IDebugPanel
 		if ($this->user->isLoggedIn()) {
 			$template->setFile(__DIR__ . '/bar.user.panel.phtml');
 		} else {
+			$form = $this->getComponent('login');
+			$form['username']->setValue($this->username);
+			$form['password']->setValue($this->password);
+			
 			$template->setFile(__DIR__ . '/bar.user.panel.guest.phtml');
 		}
 		$template->registerFilter(new LatteFilter());
@@ -79,10 +94,26 @@ class UserPanel extends \Nette\Application\Control implements IDebugPanel
 
 	/**
 	 * Registers panel to Debug bar
+	 * @param string $username default value
+	 * @param string $password default value
 	 */
-	public static function register()
+	public static function register($username = NULL, $password = NULL)
 	{
-		Debug::addPanel(new self);
+		$panel = new self;
+		$panel->setDefaultCredentials($username, $password);
+		Debug::addPanel($panel);
+	}
+
+
+
+	/**
+	 * @param string $username default value
+	 * @param string $password default value
+	 */
+	public function setDefaultCredentials($username, $password)
+	{
+		$this->username = $username;
+		$this->password = $password;
 	}
 
 
@@ -91,25 +122,28 @@ class UserPanel extends \Nette\Application\Control implements IDebugPanel
 	 * Sign in form component factory.
 	 * @return Nette\Application\AppForm
 	 */
-	public function createComponentLogInForm($name)
+	public function createComponentLogin($name)
 	{
 		$form = new \Nette\Application\AppForm($this, $name);
 
 		$form->addText('username', 'Username:')
 			->addRule(\Nette\Application\AppForm::FILLED, 'Please provide a username.');
 
-		$form->addPassword('password', 'Password:')
+		$form->addText('password', 'Password:')
 			->addRule(\Nette\Application\AppForm::FILLED, 'Please provide a password.');
 
 		$form->addSubmit('send', 'Log in');
 
-		$form->onSubmit[] = callback($this, 'onLogInFormSubmitted');
+		$form->onSubmit[] = callback($this, 'onLoginSubmitted');
 		return $form;
 	}
 
 
 
-	public function onLogInFormSubmitted($form)
+	/**
+	 * @param \Nette\Application\AppForm $form
+	 */
+	public function onLoginSubmitted(\Nette\Application\AppForm $form)
 	{
 		try {
 			$values = $form->getValues();
@@ -121,7 +155,7 @@ class UserPanel extends \Nette\Application\Control implements IDebugPanel
 	}
 
 
-
+	
 	public function handleLogout()
 	{
 		\Nette\Environment::getUser()->logout();
