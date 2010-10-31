@@ -4,7 +4,7 @@
 	 */
 ?>
 
-<h1>Logged in as <span style="font-style: italic; margin: 0; padding: 0;">{=isset($data['username']) ? $data['username'] : $data['id']}</span></h1>
+<h1>Logged in as <span style="font-style: italic; margin: 0; padding: 0;">{=isset($data['username']) ? $data['username'] : $user->id}</span></h1>
 
 <div class="nette-inner">
 	<table style="width: 100%;">
@@ -13,9 +13,9 @@
 				<td>{$key}</td>
 				<td>{$value}</td>
 			</tr>
-			<tr n:if="$roles">
+			<tr n:if="$user->roles">
 				<td>roles</td>
-				<td>{=implode(', ', $roles)}</td>
+				<td>{=implode(', ', $user->roles)}</td>
 			</tr>
 			<tr>
 				<td colspan="2"><a href="{link logout!}">logout</a></td>
