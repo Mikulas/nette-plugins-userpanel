@@ -12,6 +12,7 @@ use Nette\Application\Control;
 use Nette\Debug;
 use Nette\Environment;
 use Nette\IDebugPanel;
+use Nette\Security\AuthenticationException;
 use Nette\Templates\LatteFilter;
 
 
