@@ -1,7 +1,11 @@
-PresenterTreePanel for Nette 2.0
+UserPanel for Nette 2.0
 
 Usage:
         \Panel\UserPanel::register();
+        \Panel\UserPanel::register('default username');
+        \Panel\UserPanel::register('default username', 'default password');
 
 License: MIT
 Author: Mikuláš Dítě
+
+@todo: add more information about user from identity
