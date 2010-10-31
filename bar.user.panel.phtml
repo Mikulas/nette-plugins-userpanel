@@ -1,0 +1,21 @@
+<?php
+	/**
+	 * @author Mikulas Dite
+	 */
+?>
+
+<h1>Logged in as {=isset($user->name) ? $user->name : $user->id}</h1>
+
+<div class="nette-inner">
+	<table style="width: 100%;">
+		<tbody>
+			<tr>
+				<td>id</td>
+				<td>{$user->id}</td>
+			</tr>
+			<tr>
+				<td colspan="2"><a href="{link logout!}">logout</a></td>
+			</tr>
+		</tbody>
+	</table>
+</div>

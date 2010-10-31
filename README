@@ -1,0 +1,7 @@
+PresenterTreePanel for Nette 2.0
+
+Usage:
+        \Panel\UserPanel::register();
+
+License: MIT
+Author: Mikuláš Dítě
