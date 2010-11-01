@@ -85,14 +85,6 @@ class UserPanel extends Control implements IDebugPanel
 
 
 
-	public function getUsername()
-	{
-		$data = $this->getData();
-		return isset($data[$this->userColumn]) ? $data[$this->userColumn] : NULL;
-	}
-
-
-
 	/**
 	 * IDebugPanel
 	 * @return string
@@ -117,6 +109,22 @@ class UserPanel extends Control implements IDebugPanel
 
 
 
+	/**
+	 * Username from user->identity->data from column set via setNameColumn()
+	 * @return string|NULL
+	 */
+	public function getUsername()
+	{
+		$data = $this->getData();
+		return isset($data[$this->userColumn]) ? $data[$this->userColumn] : NULL;
+	}
+
+
+
+	/**
+	 * $user->identity->data
+	 * @return array
+	 */
 	private function getData()
 	{
 		if (method_exists($this->user->identity, 'getData')) {
@@ -153,10 +161,16 @@ class UserPanel extends Control implements IDebugPanel
 
 
 
+	/**
+	 * Returns value => name arrray for filling radio list and add __guest
+	 * Original array in $this->credentials is not used as this prevents
+	 * sending passwords to the browser
+	 * @return array
+	 */
 	public function getCredentialsRadioData()
 	{
 		$data = array();
-		foreach ($this->credentials as $username => $passwor) {
+		foreach ($this->credentials as $username => $password) {
 			$data[$username] = \ucfirst($username);
 		}
 		$data['__guest'] = 'guest';
@@ -176,13 +190,6 @@ class UserPanel extends Control implements IDebugPanel
 		$form->addRadioList('user', NULL, $this->getCredentialsRadioData())
 			->setAttribute('class', 'onClickSubmit');
 
-		/*
-		$form->addText('username', 'Username:')
-			->addRule(AppForm::FILLED, 'Please provide a username.');
-
-		$form->addText('password', 'Password:')
-			->addRule(AppForm::FILLED, 'Please provide a password.');
-		/* */
 		$form->addSubmit('send', 'Log in');
 
 		$form->onSubmit[] = callback($this, 'onLoginSubmitted');
