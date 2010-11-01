@@ -32,7 +32,7 @@ class UserPanel extends Control implements IDebugPanel
 
 	public function __construct()
 	{
-		parent::__construct(Environment::getApplication()->presenter, $this->reflection->shortName);
+		parent::__construct(Environment::getApplication()->presenter, 'UserPanel');
 		$this->user = Environment::getUser();
 	}
 
