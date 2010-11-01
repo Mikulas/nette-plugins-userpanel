@@ -22,23 +22,18 @@ class UserPanel extends Control implements IDebugPanel
 	/** @var \Nette\Web\User */
 	private $user;
 
-	/** @var string */
-	private $username;
+	/** @var array username => password */
+	private $credentials = array();
 
 	/** @var string */
-	private $password;
+	private $userColumn = 'username';
 
 
 
-	/**
-	 * @param string $username default value
-	 * @param string $password default value
-	 */
-	public function __construct($username = NULL, $password = NULL)
+	public function __construct()
 	{
 		parent::__construct(Environment::getApplication()->presenter, $this->reflection->shortName);
 		$this->user = Environment::getUser();
-		$this->setDefaultCredentials($username, $password);
 	}
 
 
@@ -52,7 +47,7 @@ class UserPanel extends Control implements IDebugPanel
 	{
 		$data = $this->getData();
 		return '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAnpJREFUeNqEU19IU1EY/927e52bWbaMQLbJwmgP0zIpffDFUClsyF56WJBQkv1RyJeo2IMPEghRQeAIoscegpBqTy6y3CDwrdzDwjCVkdqmzT+7u//O1jm3knkV/MF3z3e+8zu/7zv3O4crFotgaHC7jfHrwgKuBYPtVqt1BBx3SlNV5HK5KSmXu/N6fPxTKY+BMwvUNzY22cvFz6TIi0TXoWkaFEWBrkra+rrUtJLJTJcKCDCBZrqvyBaRCTMBnRCwKhRZFlVFuUspl0r5OwRUKXu+opxgsP8qfE4Bmk7wZV7Bg5FRqIR0m/m8OfA7K9n6bt1GvbeWlq2CKxCcPnEM1wf6sZknFXsKDF+c+dHgVKBmf4JoqmHMb/Va8OTK4vSeAhThpW9vwdsPociJ1ATD/zU7bqyZyVtdKMWHIXH0SJ3/RrWn05hn5t5jeeZN+OyQdtPMFbA77i1/f9dE7cy/+RS10G7EbRX4fL42OvQGAoFgT6uM2uPnjHhq9iNeTABjY2Mv6fR5IpGY2Cbg9XqPUr/PZrMNOJ1Oq65pfCQSwcPwK1TtE9F7OYCurgsQRbGQSqWUfD7/lPKfJZPJWc7j8ZzkeX7S5XLZHA6HIEkSqBCam5uxYqnDwf02WDeTiMVikGUZdrsdq6urOhWSCSGdFhoIud3ulrKyMiGbzRrXVqX9j8fj8Pu7UXO4EiPDIZYdNDN7F6DvhKf7+HQ6bRGoaju970bm/2CZmCXn0nAcyBn+xsbG1joTooJsbxv71LDNhUJh299lpPnFNaxt/hVjlZWCPTIar+YEQXhEzzxobk9HRyeWrC2oqhRRnplENBrd0UKa5PEfAQYAH6s95RSa3ooAAAAASUVORK5CYII=">' .
-			($this->user->isLoggedIn() ? 'Logged as <span style="font-style: italic; margin: 0; padding: 0;">' . (isset($data['username']) ? $data['username'] : $this->user->id) . '</span>' : 'Guest');
+			($this->user->isLoggedIn() ? 'Logged as <span style="font-style: italic; margin: 0; padding: 0;">' . $this->getUsername() . '</span>' : 'Guest');
 	}
 
 
@@ -66,21 +61,34 @@ class UserPanel extends Control implements IDebugPanel
 	{
 		ob_start();
 		$template = parent::getTemplate();
+
+		$data = $this->getData();
+
+		$form = $this->getComponent('login');
 		if ($this->user->isLoggedIn()) {
-			$template->setFile(__DIR__ . '/bar.user.panel.phtml');
+			$form['user']->setDefaultValue($this->getUsername());
 		} else {
-			$form = $this->getComponent('login');
-			$form['username']->setValue($this->username);
-			$form['password']->setValue($this->password);
-			
-			$template->setFile(__DIR__ . '/bar.user.panel.guest.phtml');
+			$form['user']->setDefaultValue('__guest');
 		}
+
+		$template->setFile(__DIR__ . '/bar.user.panel.phtml');
+
 		$template->registerFilter(new LatteFilter());
 		$template->user = $this->user;
-		$template->data = $this->getData();
+		$template->data = $data;
+		$template->userColumn = $this->userColumn;
+		$template->username = $this->getUsername();
 		$template->render();
 
 		return ob_get_clean();
+	}
+
+
+
+	public function getUsername()
+	{
+		$data = $this->getData();
+		return isset($data[$this->userColumn]) ? $data[$this->userColumn] : NULL;
 	}
 
 
@@ -98,14 +106,13 @@ class UserPanel extends Control implements IDebugPanel
 
 	/**
 	 * Registers panel to Debug bar
-	 * @param string $username default value
-	 * @param string $password default value
+	 * @return \Panel\UserPanel;
 	 */
-	public static function register($username = NULL, $password = NULL)
+	public static function register()
 	{
 		$panel = new self;
-		$panel->setDefaultCredentials($username, $password);
 		Debug::addPanel($panel);
+		return $panel;
 	}
 
 
@@ -123,11 +130,37 @@ class UserPanel extends Control implements IDebugPanel
 	/**
 	 * @param string $username default value
 	 * @param string $password default value
+	 * @return \Panel\UserPanel provides fluent interface
 	 */
-	public function setDefaultCredentials($username, $password)
+	public function addCredentials($username, $password)
 	{
-		$this->username = $username;
-		$this->password = $password;
+		$this->credentials[$username] = $password;
+		return $this;
+	}
+
+
+
+	/**
+	 * Sets which $user->identity->data column is supposed to be username
+	 * @param string $column
+	 * @return \Panel\UserPanel provides fluent interface
+	 */
+	public function setNameColumn($column)
+	{
+		$this->userColumn = $column;
+		return $this;
+	}
+
+
+
+	public function getCredentialsRadioData()
+	{
+		$data = array();
+		foreach ($this->credentials as $username => $passwor) {
+			$data[$username] = \ucfirst($username);
+		}
+		$data['__guest'] = 'guest';
+		return $data;
 	}
 
 
@@ -140,12 +173,16 @@ class UserPanel extends Control implements IDebugPanel
 	{
 		$form = new AppForm($this, $name);
 
+		$form->addRadioList('user', NULL, $this->getCredentialsRadioData())
+			->setAttribute('class', 'onClickSubmit');
+
+		/*
 		$form->addText('username', 'Username:')
 			->addRule(AppForm::FILLED, 'Please provide a username.');
 
 		$form->addText('password', 'Password:')
 			->addRule(AppForm::FILLED, 'Please provide a password.');
-
+		/* */
 		$form->addSubmit('send', 'Log in');
 
 		$form->onSubmit[] = callback($this, 'onLoginSubmitted');
@@ -161,18 +198,18 @@ class UserPanel extends Control implements IDebugPanel
 	{
 		try {
 			$values = $form->getValues();
-			Environment::getUser()->login($values['username'], $values['password']);
+			$username = $values['user'];
+			if ($username == '__guest') {
+				$this->user->logout(TRUE);
+			} else {
+				$password = $this->credentials[$username];
+				Environment::getUser()->login($username, $password);
+			}
+
 			$this->redirect('this');
 		} catch (AuthenticationException $e) {
-			$form->addError($e->getMessage());
+			Environment::getApplication()->presenter->flashMessage($e->getMessage(), 'error');
+			$this->redirect('this');
 		}
-	}
-
-
-	
-	public function handleLogout()
-	{
-		Environment::getUser()->logout();
-		$this->redirect('this');
 	}
 }

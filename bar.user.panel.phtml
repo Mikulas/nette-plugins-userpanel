@@ -4,10 +4,22 @@
 	 */
 ?>
 
-<h1>Logged in as <span style="font-style: italic; margin: 0; padding: 0;">{=isset($data['username']) ? $data['username'] : $user->id}</span></h1>
+<style type="text/css" n:syntax="double">
+#frm-UserPanel-login label[for^=frmlogin-user] {margin-left: 0.5em;}
+#frm-UserPanel-login input[type=radio] {margin: 4px 0 4px 0;}
+#frm-UserPanel-login table {width: 100%; margin-bottom: 1em;}
+</style>
+
+{if $user->isLoggedIn()}
+<h1>Logged in as <span style="font-style: italic; margin: 0; padding: 0;">{$username}</span></h1>
+{else}
+<h1>Logged out <span style="font-style: italic; margin: 0; padding: 0;">guest</span></h1>
+{/if}
 
 <div class="nette-inner">
-	<table style="width: 100%;">
+	{widget login}
+
+	<table n:if="$user" style="width: 100%;">
 		<tbody>
 			<tr n:foreach="$data as $key => $value">
 				<td>{$key}</td>
@@ -17,9 +29,20 @@
 				<td>roles</td>
 				<td>{=implode(', ', $user->roles)}</td>
 			</tr>
-			<tr>
-				<td colspan="2"><a href="{link logout!}">logout</a></td>
-			</tr>
 		</tbody>
 	</table>
 </div>
+
+<script type="text/javascript">
+	var form = document.forms['frm-UserPanel-login'];
+	form.elements['frmlogin-send'].parentNode.parentNode.style.display = 'none';
+	
+	var elements = form.getElementsByTagName('input');
+	for (i = 0; i < elements.length; i++) {
+		if (elements[i].getAttribute('class') == 'onClickSubmit') {
+			elements[i].onclick = function () {
+				form.submit();
+			};
+		}
+	}
+</script>
