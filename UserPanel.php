@@ -71,7 +71,7 @@ class UserPanel extends Control implements IDebugPanel
 			$form['user']->setDefaultValue('__guest');
 		}
 
-		$template->setFile(__DIR__ . '/bar.user.panel.phtml');
+		$template->setFile(__DIR__ . '/bar.user.panel.latte');
 
 		$template->registerFilter(new LatteFilter());
 		$template->user = $this->user;
