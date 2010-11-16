@@ -30,9 +30,15 @@ class UserPanel extends Control implements IDebugPanel
 
 
 
+	/**
+	 * @throws \LogicException
+	 */
 	public function __construct()
 	{
 		parent::__construct(Environment::getApplication()->presenter, 'UserPanel');
+		if (Environment::getApplication()->presenter === NULL) {
+			throw new \LogicException('UserPanel must be registered in BasePresenter::startup(), not in bootstrap.');
+		}
 		$this->user = Environment::getUser();
 	}
 
