@@ -23,7 +23,17 @@
 		<tbody>
 			<tr n:foreach="$data as $key => $value">
 				<td>{$key}</td>
+				{if is_scalar($value)}
 				<td>{$value}</td>
+				{else}
+				<?php /** @todo add object class name */ ?>
+				<td style="font-style: italic;">
+					{if $value instanceof \Nette\Object} {$value->reflection->name}
+					{elseif is_array($value)} Array
+					{else} Object
+					{/if}
+				</td>
+				{/if}
 			</tr>
 			<tr n:if="$user->roles">
 				<td>roles</td>
