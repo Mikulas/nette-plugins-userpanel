@@ -26,9 +26,8 @@
 				{if is_scalar($value)}
 				<td>{$value}</td>
 				{else}
-				<?php /** @todo add object class name */ ?>
 				<td style="font-style: italic;">
-					{if $value instanceof \Nette\Object} {$value->reflection->name}
+					{if is_object($value)} {=get_class($value)}
 					{elseif is_array($value)} Array
 					{else} Object
 					{/if}
