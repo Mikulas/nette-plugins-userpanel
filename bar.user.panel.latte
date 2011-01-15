@@ -43,14 +43,14 @@
 </div>
 
 <script type="text/javascript">
-	var form = document.forms['frm-UserPanel-login'];
-	form.elements['frmlogin-send'].parentNode.parentNode.style.display = 'none';
+	var user_panel_form = document.forms['frm-UserPanel-login'];
+	user_panel_form.elements['frmlogin-send'].parentNode.parentNode.style.display = 'none';
 	
-	var elements = form.getElementsByTagName('input');
-	for (i = 0; i < elements.length; i++) {
-		if (elements[i].getAttribute('class') == 'onClickSubmit') {
-			elements[i].onclick = function () {
-				form.submit();
+	var user_panel_elements = user_panel_form.getElementsByTagName('input');
+	for (user_panel_index = 0; user_panel_index < user_panel_elements.length; user_panel_index++) {
+		if (user_panel_elements[user_panel_index].getAttribute('class') == 'onClickSubmit') {
+			user_panel_elements[user_panel_index].onclick = function () {
+				user_panel_form.submit();
 			};
 		}
 	}
