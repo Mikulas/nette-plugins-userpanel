@@ -72,7 +72,7 @@ class UserPanel extends Control implements IDebugPanel
 
 		$form = $this->getComponent('login');
 		if ($this->user->isLoggedIn()) {
-			$form['user']->setDefaultValue($this->getUsername());
+			$form['user']->setDefaultValue(strToLower($this->getUsername()));
 		} else {
 			$form['user']->setDefaultValue('__guest');
 		}
