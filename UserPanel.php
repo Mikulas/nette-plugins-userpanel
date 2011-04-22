@@ -7,19 +7,19 @@
  */
 
 namespace Panel;
-use Nette\Application\AppForm;
-use Nette\Application\Control;
-use Nette\Debug;
+use Nette\Application\UI\Form;
+use Nette\Application\UI\Control;
+use Nette\Diagnostics\Debugger;
 use Nette\Environment;
-use Nette\IDebugPanel;
+use Nette\Diagnostics\IBarPanel;
 use Nette\Security\AuthenticationException;
-use Nette\Templates\LatteFilter;
+use Nette\Latte\Engine;
 
 
-class UserPanel extends Control implements IDebugPanel
+class User extends Control implements IBarPanel
 {
 
-	/** @var \Nette\Web\User */
+	/** @var \Nette\Http\User */
 	private $user;
 
 	/** @var array username => password */
@@ -79,7 +79,7 @@ class UserPanel extends Control implements IDebugPanel
 
 		$template->setFile(__DIR__ . '/bar.user.panel.latte');
 
-		$template->registerFilter(new LatteFilter());
+		$template->registerFilter(new Engine());
 		$template->user = $this->user;
 		$template->data = $data;
 		$template->userColumn = $this->userColumn;
@@ -104,12 +104,12 @@ class UserPanel extends Control implements IDebugPanel
 
 	/**
 	 * Registers panel to Debug bar
-	 * @return \Panel\UserPanel;
+	 * @return UserPanel;
 	 */
 	public static function register()
 	{
 		$panel = new self;
-		Debug::addPanel($panel);
+		Debugger::addPanel($panel);
 		return $panel;
 	}
 
@@ -144,7 +144,7 @@ class UserPanel extends Control implements IDebugPanel
 	/**
 	 * @param string $username default value
 	 * @param string $password default value
-	 * @return \Panel\UserPanel provides fluent interface
+	 * @return UserPanel provides fluent interface
 	 */
 	public function addCredentials($username, $password)
 	{
@@ -157,7 +157,7 @@ class UserPanel extends Control implements IDebugPanel
 	/**
 	 * Sets which $user->identity->data column is supposed to be username
 	 * @param string $column
-	 * @return \Panel\UserPanel provides fluent interface
+	 * @return UserPanel provides fluent interface
 	 */
 	public function setNameColumn($column)
 	{
@@ -191,7 +191,7 @@ class UserPanel extends Control implements IDebugPanel
 	 */
 	public function createComponentLogin($name)
 	{
-		$form = new AppForm($this, $name);
+		$form = new Form($this, $name);
 
 		$form->addRadioList('user', NULL, $this->getCredentialsRadioData())
 			->setAttribute('class', 'onClickSubmit');
@@ -205,9 +205,9 @@ class UserPanel extends Control implements IDebugPanel
 
 
 	/**
-	 * @param \Nette\Application\AppForm $form
+	 * @param Form $form
 	 */
-	public function onLoginSubmitted(AppForm $form)
+	public function onLoginSubmitted(Form $form)
 	{
 		try {
 			$values = $form->getValues();
