@@ -198,7 +198,7 @@ class User extends Control implements IBarPanel
 
 		$form->addSubmit('send', 'Log in');
 
-		$form->onSubmit[] = callback($this, 'onLoginSubmitted');
+		$form->onSuccess[] = callback($this, 'onLoginSubmitted');
 		return $form;
 	}
 
